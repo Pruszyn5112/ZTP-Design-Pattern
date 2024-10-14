@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-interface IDatabaseConnection
+﻿interface IDatabaseConnection
 {
     int AddRecord(string name, int age);
     void UpdateRecord(int id, string newName, int newAge);
@@ -15,7 +12,7 @@ interface IConnectionManager
     IDatabaseConnection GetConnection(string databaseName);
 }
 
-// Prosty rekord w bazie danych
+// rekord w bazie danych
 class Record
 {
     public int Id { get; }
@@ -35,7 +32,7 @@ class Record
     }
 }
 
-// Klasa połączenia, która operuje na bazie danych
+// Klasa połączenia która operuje na bazie danych
 class DatabaseConnection : IDatabaseConnection
 {
     private Database _database;
@@ -141,12 +138,12 @@ class Database
         }
 
         var connection = _connectionPool[_currentConnectionIndex];
-        _currentConnectionIndex = (_currentConnectionIndex + 1) % _maxConnections; // cykliczny dostęp
+        _currentConnectionIndex = (_currentConnectionIndex + 1) % _maxConnections;
         return connection;
     }
 }
 
-// Singleton - menadżer połączeń
+// Singleton menadżer połączeń
 class ConnectionManager : IConnectionManager
 {
     private static ConnectionManager _instance;
@@ -170,33 +167,62 @@ class ConnectionManager : IConnectionManager
     }
 }
 
-// Program testujący
 class Program
 {
     static void Main(string[] args)
     {
         IConnectionManager manager = ConnectionManager.GetInstance();
 
-        // Pobieranie czterech połączeń do tej samej bazy danych
-        IDatabaseConnection conn1 = manager.GetConnection("Baza1"); // Połączenie do bazy 1
-        IDatabaseConnection conn2 = manager.GetConnection("Baza1"); // Drugie połączenie do bazy 1
-        IDatabaseConnection conn3 = manager.GetConnection("Baza1"); // Trzecie połączenie do bazy 1
-        IDatabaseConnection conn4 = manager.GetConnection("Baza1"); // Czwarte połączenie do bazy 1 (cykliczne, to samo co conn1)
+        IDatabaseConnection conn1 = manager.GetConnection("Baza1");
+        IDatabaseConnection conn2 = manager.GetConnection("Baza1"); 
+        IDatabaseConnection conn3 = manager.GetConnection("Baza1"); 
+        IDatabaseConnection conn4 = manager.GetConnection("Baza1"); 
 
-        // Dodawanie rekordów
-        conn1.AddRecord("Piotr", 25); // Do bazy 1
-        conn2.AddRecord("Anna", 30);  // Do bazy 1
+        conn1.AddRecord("Piotr", 25); 
+        conn2.AddRecord("Anna", 30); 
 
-        // Pobieranie danych z bazy 1s  
-        conn3.ShowAllRecords(); // Powinien pokazać oba rekordy
+        conn3.ShowAllRecords(); // powinno pokazac oba rekordy
 
-        // Wyświetlanie hash code'ów połączeń, aby sprawdzić cykliczność
         Console.WriteLine("Hash code conn1 (Baza1): " + conn1.GetHashCode());
         Console.WriteLine("Hash code conn2 (Baza1): " + conn2.GetHashCode());
         Console.WriteLine("Hash code conn3 (Baza1): " + conn3.GetHashCode());
         Console.WriteLine("Hash code conn4 (Baza1): " + conn4.GetHashCode());
 
-        // Sprawdzanie, czy conn1 i conn4 są tym samym obiektem
+        // czy conn1 i conn4 są tym samym obiektem
         Console.WriteLine("Czy conn1 i conn4 to te same obiekty? " + (conn1.GetHashCode() == conn4.GetHashCode()));
     }
+
+    /*
+
+    static void Main(string[] args)
+    {
+        IConnectionManager manager = ConnectionManager.GetInstance();
+
+        IDatabaseConnection conn1 = manager.GetConnection("Baza1");
+        IDatabaseConnection conn2 = manager.GetConnection("Baza2");
+        IDatabaseConnection conn3 = manager.GetConnection("Baza1");
+        IDatabaseConnection conn4 = manager.GetConnection("Baza2"); 
+        
+        conn1.AddRecord("Piotr", 25);
+        Console.WriteLine("Połączenie 1 - Dodano rekord do Baza1: Piotr");
+
+        conn2.AddRecord("Anna", 30); 
+        Console.WriteLine("Połączenie 2 - Dodano rekord do Baza2: Anna");
+
+        Console.WriteLine("Połączenie 3 - Pobranie rekordu z Baza1 o ID 1:");
+        Console.WriteLine(conn3.GetRecord(1).ToString());
+
+
+        Console.WriteLine("Połączenie 4 - Pobranie rekordu z Baza2 o ID 1:");
+        Console.WriteLine(conn4.GetRecord(1).ToString());
+
+
+        Console.WriteLine("Hash code conn1: " + conn1.GetHashCode());
+        Console.WriteLine("Hash code conn2: " + conn2.GetHashCode());
+        Console.WriteLine("Hash code conn3: " + conn3.GetHashCode());
+        Console.WriteLine("Hash code conn4: " + conn4.GetHashCode());
+
+        Console.WriteLine("Czy conn1 i conn3 to ten sam obiekt? " + (conn1.GetHashCode() == conn3.GetHashCode()));
+        Console.WriteLine("Czy conn2 i conn4 to ten sam obiekt? " + (conn2.GetHashCode() == conn4.GetHashCode()));
+    }*/
 }
